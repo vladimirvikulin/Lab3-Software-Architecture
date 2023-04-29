@@ -4,7 +4,7 @@ import (
 	"image"
 	"image/color"
 	"log"
-
+	
 	"golang.org/x/exp/shiny/driver"
 	"golang.org/x/exp/shiny/imageutil"
 	"golang.org/x/exp/shiny/screen"
@@ -27,6 +27,7 @@ type Visualizer struct {
 
 	sz  size.Event
 	pos image.Rectangle
+	mousePos image.Point
 }
 
 func (pw *Visualizer) Main() {
@@ -34,6 +35,7 @@ func (pw *Visualizer) Main() {
 	pw.done = make(chan struct{})
 	pw.pos.Max.X = 200
 	pw.pos.Max.Y = 200
+	pw.mousePos = image.Point{X: 400, Y: 400}
 	driver.Main(pw.run)
 }
 
@@ -118,6 +120,10 @@ func (pw *Visualizer) handleEvent(e any, t screen.Texture) {
 	case mouse.Event:
 		if t == nil {
 			// TODO: Реалізувати реакцію на натискання кнопки миші.
+			if e.Button == mouse.ButtonLeft && e.Direction == mouse.DirPress {
+				pw.mousePos = image.Point{ X: int(e.X), Y: int(e.Y) }
+				pw.drawDefaultUI()
+			}
 		}
 
 	case paint.Event:
@@ -134,9 +140,9 @@ func (pw *Visualizer) handleEvent(e any, t screen.Texture) {
 
 func (pw *Visualizer) drawDefaultUI() {
 	pw.w.Fill(pw.sz.Bounds(), color.White, draw.Src) // Фон.
-
-    pw.w.Fill(image.Rect(200, 325, 600, 475), color.RGBA{R: 255, G: 255, B: 0, A: 1}, draw.Src)
-    pw.w.Fill(image.Rect(325, 200, 474, 600), color.RGBA{R: 255, G: 255, B: 0, A: 1}, draw.Src)
+	x, y := pw.mousePos.X, pw.mousePos.Y
+	pw.w.Fill(image.Rect(x-200, y+75, x+200, y-75), color.RGBA{R: 255, G: 255, B: 0, A: 1}, draw.Src)
+	pw.w.Fill(image.Rect(x-75, y+200, x+75, y-200), color.RGBA{R: 255, G: 255, B: 0, A: 1}, draw.Src)
     
 	// Малювання білої рамки.
 	for _, br := range imageutil.Border(pw.sz.Bounds(), 10) {
