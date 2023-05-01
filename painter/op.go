@@ -50,7 +50,7 @@ func GreenFill(t screen.Texture) {
 func BackgroundRect(x1, y1, x2, y2 int) OperationFunc {
 	return func(t screen.Texture) {
 		bounds := image.Rect(x1, y1, x2, y2)
-		t.Fill(bounds, color.Black, screen.Src)
+		t.Fill(bounds, color.White, screen.Src)
 	}
 }
 
@@ -85,6 +85,6 @@ func Move(dx, dy int, figures []*FigureOp) OperationFunc {
 
 func Reset() OperationFunc {
 	return func(t screen.Texture) {
-		t.Fill(t.Bounds(), color.Black, screen.Src)
+		t.Fill(t.Bounds(), color.White, screen.Src)
 	}
 }
