@@ -1,9 +1,9 @@
 package painter
 
 import (
-	"image/color"
-
 	"golang.org/x/exp/shiny/screen"
+	"image"
+	"image/color"
 )
 
 // Operation змінює вхідну текстуру.
@@ -45,4 +45,46 @@ func WhiteFill(t screen.Texture) {
 // GreenFill зафарбовує тестуру у зелений колір. Може бути викоистана як Operation через OperationFunc(GreenFill).
 func GreenFill(t screen.Texture) {
 	t.Fill(t.Bounds(), color.RGBA{G: 0xff, A: 0xff}, screen.Src)
+}
+
+func BackgroundRect(x1, y1, x2, y2 int) OperationFunc {
+	return func(t screen.Texture) {
+		bounds := image.Rect(x1, y1, x2, y2)
+		t.Fill(bounds, color.Black, screen.Src)
+	}
+}
+
+type Figure struct {
+	X, Y int
+}
+
+// FigureOp використовується для намалювання фігури з вказаними координатами.
+type FigureOp struct {
+	F Figure
+}
+
+func (op FigureOp) Do(t screen.Texture) bool {
+	op.Figure()(t)
+	return false
+}
+
+func (op *FigureOp) Figure() OperationFunc {
+	return func(t screen.Texture) {
+		t.Fill(image.Rect(op.F.X-200, op.F.Y+75, op.F.X+200, op.F.Y-75), color.RGBA{R: 255, G: 255, B: 0, A: 1}, screen.Src)
+		t.Fill(image.Rect(op.F.X-75, op.F.Y+200, op.F.X+75, op.F.Y-200), color.RGBA{R: 255, G: 255, B: 0, A: 1}, screen.Src)
+	}
+}
+func Move(dx, dy int, figures []*FigureOp) OperationFunc {
+	return func(t screen.Texture) {
+		for _, op := range figures {
+			op.F.X += dx
+			op.F.Y += dy
+		}
+	}
+}
+
+func Reset() OperationFunc {
+	return func(t screen.Texture) {
+		t.Fill(t.Bounds(), color.Black, screen.Src)
+	}
 }
