@@ -88,7 +88,7 @@ func (Mq *messageQueue) pull() Operation {
 
 	for len(Mq.Ops) == 0 {
 		Mq.blocked = make(chan struct{})
-		defer Mq.Mu.Unlock()
+		Mq.Mu.Unlock()
 		<-Mq.blocked
 		Mq.Mu.Lock()
 	}
